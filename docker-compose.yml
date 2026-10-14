@@ -3,13 +3,13 @@ services:
     image: pgvector/pgvector:pg16
     restart: unless-stopped
     environment:
-      POSTGRES_USER: vp
+      POSTGRES_USER: ${POSTGRES_USER:-vp}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vp}
-      POSTGRES_DB: vp
+      POSTGRES_DB: ${POSTGRES_DB:-vp}
     volumes: [pgdata:/var/lib/postgresql/data]
-    ports: ["127.0.0.1:5432:5432"]
+    ports: ["127.0.0.1:${POSTGRES_PORT:-5432}:5432"]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vp"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       retries: 10
 
@@ -19,7 +19,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://vp:${POSTGRES_PASSWORD:-vp}@postgres:5432/vp
+      DATABASE_URL: postgresql://${POSTGRES_USER:-vp}:${POSTGRES_PASSWORD:-vp}@postgres:5432/${POSTGRES_DB:-vp}
     depends_on: { postgres: { condition: service_healthy } }
     profiles: [prod]
 
