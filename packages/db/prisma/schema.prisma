@@ -1,0 +1,229 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector, pg_trgm]
+}
+
+enum SourceType {
+  HTML
+  RSS
+  VK
+  TELEGRAM
+  MANUAL
+}
+
+enum RunStatus {
+  OK
+  ERROR
+  RUNNING
+}
+
+enum RawPostStatus {
+  NEW
+  SKIPPED
+  EXTRACTED
+  MODERATION
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum UserRole {
+  ADMIN
+  MODERATOR
+  USER
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  ORGANIZER
+}
+
+model Source {
+  id           String     @id @default(cuid())
+  name         String
+  url          String
+  type         SourceType
+  adapter      String
+  config       Json       @default("{}")
+  enabled      Boolean    @default(true)
+  priority     Int        @default(0)
+  scheduleCron String     @default("0 */3 * * *")
+  lastRunAt    DateTime?
+  lastStatus   RunStatus?
+  lastError    String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  runs         CrawlRun[]
+  rawPosts     RawPost[]
+  eventSources EventSource[]
+}
+
+model CrawlRun {
+  id         String    @id @default(cuid())
+  sourceId   String
+  source     Source    @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  status     RunStatus @default(RUNNING)
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  found      Int       @default(0)
+  created    Int       @default(0)
+  updated    Int       @default(0)
+  error      String?
+
+  @@index([sourceId, startedAt])
+}
+
+model RawPost {
+  id          String        @id @default(cuid())
+  sourceId    String
+  source      Source        @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  externalId  String
+  url         String?
+  text        String
+  textHash    String
+  publishedAt DateTime
+  status      RawPostStatus @default(NEW)
+  createdAt   DateTime      @default(now())
+
+  moderationItems ModerationItem[]
+  eventSources    EventSource[]
+
+  @@unique([sourceId, externalId])
+  @@index([status])
+  @@index([textHash])
+}
+
+model Venue {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  aliases   String[]
+  address   String?
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events Event[]
+}
+
+model Organizer {
+  id        String   @id @default(cuid())
+  name      String
+  url       String?
+  vkUrl     String?
+  createdAt DateTime @default(now())
+
+  events        Event[]
+  subscriptions Subscription[]
+}
+
+model Event {
+  id          String                       @id @default(cuid())
+  slug        String                       @unique
+  title       String
+  description String?
+  startsAt    DateTime
+  endsAt      DateTime?
+  venueId     String?
+  venue       Venue?                       @relation(fields: [venueId], references: [id])
+  venueText   String?
+  organizerId String?
+  organizer   Organizer?                   @relation(fields: [organizerId], references: [id])
+  priceFrom   Int?
+  priceTo     Int?
+  isFree      Boolean?
+  category    String                       @default("other")
+  imageUrl    String?
+  ticketUrl   String?
+  status      EventStatus                  @default(DRAFT)
+  confidence  Float?
+  embedding   Unsupported("vector(1024)")?
+  createdAt   DateTime                     @default(now())
+  updatedAt   DateTime                     @updatedAt
+
+  sources         EventSource[]
+  moderationItems ModerationItem[]
+
+  @@index([status, startsAt])
+}
+
+/// Одно событие может прийти из нескольких источников
+model EventSource {
+  id         String   @id @default(cuid())
+  eventId    String
+  event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  sourceId   String
+  source     Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  externalId String
+  url        String?
+  rawPostId  String?
+  rawPost    RawPost? @relation(fields: [rawPostId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([sourceId, externalId])
+}
+
+model ModerationItem {
+  id         String           @id @default(cuid())
+  rawPostId  String?
+  rawPost    RawPost?         @relation(fields: [rawPostId], references: [id], onDelete: Cascade)
+  eventId    String?
+  event      Event?           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  reason     String
+  extraction Json?
+  status     ModerationStatus @default(PENDING)
+  resolvedBy String?
+  resolvedAt DateTime?
+  createdAt  DateTime         @default(now())
+
+  @@index([status, createdAt])
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  role         UserRole @default(USER)
+  createdAt    DateTime @default(now())
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizerId String?
+  organizer   Organizer?       @relation(fields: [organizerId], references: [id])
+  tier        SubscriptionTier @default(FREE)
+  expiresAt   DateTime?
+  createdAt   DateTime         @default(now())
+}
+
+model LlmCache {
+  textHash  String   @id
+  kind      String
+  model     String
+  result    Json
+  tokens    Int      @default(0)
+  createdAt DateTime @default(now())
+}

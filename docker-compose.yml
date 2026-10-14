@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vp}
+      POSTGRES_DB: vp
+    volumes: [pgdata:/var/lib/postgresql/data]
+    ports: ["127.0.0.1:5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vp"]
+      interval: 5s
+      retries: 10
+
+  api:
+    image: ghcr.io/${GH_OWNER:-owner}/vp-api:latest
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://vp:${POSTGRES_PASSWORD:-vp}@postgres:5432/vp
+    depends_on: { postgres: { condition: service_healthy } }
+    profiles: [prod]
+
+  web:
+    image: ghcr.io/${GH_OWNER:-owner}/vp-web:latest
+    build: { context: ., dockerfile: apps/web/Dockerfile }
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      API_URL: http://api:3001
+    depends_on: [api]
+    profiles: [prod]
+
+  caddy:
+    image: ghcr.io/${GH_OWNER:-owner}/vp-caddy:latest
+    build: { context: ., dockerfile: infra/caddy/Dockerfile }
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment: { DOMAIN: "${DOMAIN}" }
+    volumes:
+      - caddy_data:/data
+    depends_on: [api, web]
+    profiles: [prod]
+
+volumes:
+  pgdata:
+  caddy_data:
