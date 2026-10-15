@@ -23,7 +23,28 @@ const sources: { name: string; url: string; type: SourceType; adapter: string; e
   { name: 'Instagram ТИЦ', url: 'https://www.instagram.com/tourismpereslavl/', type: 'MANUAL', adapter: 'manual', enabled: false },
 ];
 
+// Coordinates are approximate — verify on a map before showing on the public site.
+const locations: { slug: string; name: string; aliases: string[]; address?: string; lat?: number; lng?: number }[] = [
+  { slug: 'krasnaya-ploshchad', name: 'Красная площадь', aliases: ['Красная пл.', 'Красная площадь Переславля', 'Кремль'], address: 'пл. Красная, 1а', lat: 56.7396, lng: 38.8515 },
+  { slug: 'dk-pereslavl', name: 'Дом культуры', aliases: ['ДК', 'ДК города Переславля-Залесского', 'городской ДК', 'ГДК'], address: 'Народная пл., 8', lat: 56.7367, lng: 38.8527 },
+  { slug: 'kino-oskar', name: 'Кинотеатр «Оскар»', aliases: ['Оскар', 'кинотеатр Оскар', 'Оскар Переславль'], address: 'ул. Маяковского, 6', lat: 56.7345, lng: 38.8575 },
+  { slug: 'biblioteka-malashenko', name: 'Центральная городская библиотека им. Малашенко', aliases: ['ЦГБ', 'библиотека Малашенко', 'городская библиотека', 'центральная библиотека'], address: 'ул. 50 лет Комсомола, 1', lat: 56.7352, lng: 38.8548 },
+  { slug: 'goritsky-monastyr', name: 'Музей-заповедник в Горицком монастыре', aliases: ['Горицкий монастырь', 'Горицы', 'музей-заповедник', 'Переславский музей-заповедник', 'Горицкий Успенский монастырь'], address: 'Музейный пер., 4', lat: 56.7431, lng: 38.8635 },
+  { slug: 'botik-petra', name: 'Музей «Ботик Петра I»', aliases: ['Ботик', 'Ботик Петра', 'Ботик Петра I', 'усадьба Ботик', 'Веськово'], lat: 56.7104, lng: 38.8493 },
+  { slug: 'muzey-radio', name: 'Музей радио', aliases: ['музей радио А. С. Попова', 'Музей радио Переславль'], address: 'ул. Советская, 14', lat: 56.7380, lng: 38.8550 },
+  { slug: 'nikitsky-monastyr', name: 'Никитский монастырь', aliases: ['Никитский', 'Никитский мужской монастырь', 'Никитская слобода'], lat: 56.7745, lng: 38.8690 },
+  { slug: 'feodorovsky-monastyr', name: 'Феодоровский монастырь', aliases: ['Феодоровский', 'Феодоровский женский монастырь', 'Феодоровская обитель'], lat: 56.7395, lng: 38.8337 },
+  { slug: 'spaso-preobrazhensky-sobor', name: 'Спасо-Преображенский собор', aliases: ['Спасо-Преображенский', 'Преображенский собор', 'Спасо-Преображенский собор на Красной площади'], address: 'пл. Красная', lat: 56.7399, lng: 38.8510 },
+  { slug: 'pleshcheevo-ozero', name: 'Плещеево озеро', aliases: ['Плещеево', 'озеро Плещеево', 'Плещеево озеро набережная', 'пляж на Плещеевом озере'], lat: 56.7570, lng: 38.8260 },
+  { slug: 'muzey-utyuga', name: 'Музей утюга', aliases: ['Утюг', 'музей утюгов'], lat: 56.7385, lng: 38.8530 },
+];
+
 async function main() {
+  for (const l of locations) {
+    await prisma.location.upsert({ where: { slug: l.slug }, update: {}, create: l });
+  }
+  console.log(`Seeded ${locations.length} locations`);
+
   for (const s of sources) {
     const existing = await prisma.source.findFirst({ where: { url: s.url } });
     if (!existing) await prisma.source.create({ data: s });
