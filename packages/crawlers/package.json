@@ -4,6 +4,16 @@
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "scripts": { "build": "tsc", "typecheck": "tsc --noEmit" },
-  "dependencies": { "cheerio": "^1.0.0", "ofetch": "^1.4.1" }
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "ofetch": "^1.4.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0"
+  }
 }
