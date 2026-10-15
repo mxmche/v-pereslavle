@@ -36,8 +36,8 @@ infra/        docker-compose, Caddyfile, скрипты бэкапа
 - [x] Интерфейс `CrawlerAdapter { fetch(source): Promise<RawItem[]> }` + реестр по ключу `adapter`
 - [ ] HTML-адаптеры (ofetch + cheerio): ~~tourismpereslavl.ru~~ ✅ (календарь `/kalendar-turisticheskikh-sobytiy/`), museumpereslavl.ru (список + detail), admpereslavl.ru — пишут **сразу в `Event`**
 - [ ] VK-адаптер (`vk-io`, `wall.get`): anons_pz, oskar.amigopz → `RawPost`
-- [ ] Планировщик: `@nestjs/schedule` тикает каждые 5 мин, выбирает источники с наступившим `scheduleCron`; очередь pg-boss (без Redis), concurrency 2–3, ретраи с backoff
-- [ ] Идемпотентность: ~~upsert по `(sourceId, externalId)`~~ ✅ (`IngestService`); «Запустить сейчас» ставит ту же задачу
+- [ ] Планировщик: `@nestjs/schedule` тикает каждые 5 мин, выбирает источники с наступившим `scheduleCron` ✅; очередь pg-boss (без Redis), concurrency 2–3, ретраи с backoff — пока in-process `CrawlQueue` (concurrency 2, дедуп по источнику), без ретраев и pg-boss
+- [x] Идемпотентность: upsert по `(sourceId, externalId)` (`IngestService`); «Запустить сейчас» ставит ту же задачу
 
 **Контрольная точка:** события сайтов появляются каждые 3 ч; посты ВК копятся; `CrawlRun` логирует запуски.
 

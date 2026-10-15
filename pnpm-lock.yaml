@@ -70,6 +70,9 @@ importers:
       '@vp/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      cron:
+        specifier: ^4.4.0
+        version: 4.4.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2

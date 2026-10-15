@@ -1,11 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
 import type { Prisma } from '@vp/db';
+import { CrawlQueue } from '../crawl/crawl-queue.service';
 import { PrismaService } from '../prisma.service';
 
 // TODO: guard with admin JWT auth
 @Controller('admin/sources')
 export class SourcesController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly queue: CrawlQueue,
+  ) {}
 
   @Get()
   list() {
@@ -20,6 +24,19 @@ export class SourcesController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() data: Prisma.SourceUpdateInput) {
     return this.prisma.source.update({ where: { id }, data });
+  }
+
+  /** «Запустить сейчас»: same queue as the scheduler; queued=false if already queued or running. */
+  @Post(':id/run')
+  @HttpCode(202)
+  async run(@Param('id') id: string) {
+    await this.prisma.source.findUniqueOrThrow({ where: { id } });
+    return { queued: this.queue.enqueue(id) };
+  }
+
+  @Get(':id/runs')
+  runs(@Param('id') id: string) {
+    return this.prisma.crawlRun.findMany({ where: { sourceId: id }, orderBy: { startedAt: 'desc' }, take: 50 });
   }
 
   @Delete(':id')
