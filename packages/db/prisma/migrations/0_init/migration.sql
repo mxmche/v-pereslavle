@@ -79,7 +79,7 @@ CREATE TABLE "RawPost" (
 );
 
 -- CreateTable
-CREATE TABLE "Venue" (
+CREATE TABLE "Location" (
     "id" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE "Venue" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Venue_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Location_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -112,8 +112,8 @@ CREATE TABLE "Event" (
     "description" TEXT,
     "startsAt" TIMESTAMP(3) NOT NULL,
     "endsAt" TIMESTAMP(3),
-    "venueId" TEXT,
-    "venueText" TEXT,
+    "locationId" TEXT,
+    "locationText" TEXT,
     "organizerId" TEXT,
     "priceFrom" INTEGER,
     "priceTo" INTEGER,
@@ -206,7 +206,7 @@ CREATE INDEX "RawPost_textHash_idx" ON "RawPost"("textHash");
 CREATE UNIQUE INDEX "RawPost_sourceId_externalId_key" ON "RawPost"("sourceId", "externalId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Venue_slug_key" ON "Venue"("slug");
+CREATE UNIQUE INDEX "Location_slug_key" ON "Location"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Event_slug_key" ON "Event"("slug");
@@ -230,7 +230,7 @@ ALTER TABLE "CrawlRun" ADD CONSTRAINT "CrawlRun_sourceId_fkey" FOREIGN KEY ("sou
 ALTER TABLE "RawPost" ADD CONSTRAINT "RawPost_sourceId_fkey" FOREIGN KEY ("sourceId") REFERENCES "Source"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Event" ADD CONSTRAINT "Event_venueId_fkey" FOREIGN KEY ("venueId") REFERENCES "Venue"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Event" ADD CONSTRAINT "Event_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "Location"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Event" ADD CONSTRAINT "Event_organizerId_fkey" FOREIGN KEY ("organizerId") REFERENCES "Organizer"("id") ON DELETE SET NULL ON UPDATE CASCADE;

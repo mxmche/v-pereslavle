@@ -111,7 +111,7 @@ model RawPost {
   @@index([textHash])
 }
 
-model Venue {
+model Location {
   id        String   @id @default(cuid())
   slug      String   @unique
   name      String
@@ -137,28 +137,28 @@ model Organizer {
 }
 
 model Event {
-  id          String                       @id @default(cuid())
-  slug        String                       @unique
-  title       String
-  description String?
-  startsAt    DateTime
-  endsAt      DateTime?
-  venueId     String?
-  venue       Venue?                       @relation(fields: [venueId], references: [id])
-  venueText   String?
-  organizerId String?
-  organizer   Organizer?                   @relation(fields: [organizerId], references: [id])
-  priceFrom   Int?
-  priceTo     Int?
-  isFree      Boolean?
-  category    String                       @default("other")
-  imageUrl    String?
-  ticketUrl   String?
-  status      EventStatus                  @default(DRAFT)
-  confidence  Float?
-  embedding   Unsupported("vector(1024)")?
-  createdAt   DateTime                     @default(now())
-  updatedAt   DateTime                     @updatedAt
+  id           String                       @id @default(cuid())
+  slug         String                       @unique
+  title        String
+  description  String?
+  startsAt     DateTime
+  endsAt       DateTime?
+  locationId   String?
+  location     Location?                    @relation(fields: [locationId], references: [id])
+  locationText String?
+  organizerId  String?
+  organizer    Organizer?                   @relation(fields: [organizerId], references: [id])
+  priceFrom    Int?
+  priceTo      Int?
+  isFree       Boolean?
+  category     String                       @default("other")
+  imageUrl     String?
+  ticketUrl    String?
+  status       EventStatus                  @default(DRAFT)
+  confidence   Float?
+  embedding    Unsupported("vector(1024)")?
+  createdAt    DateTime                     @default(now())
+  updatedAt    DateTime                     @updatedAt
 
   sources         EventSource[]
   moderationItems ModerationItem[]

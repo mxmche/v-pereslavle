@@ -14,7 +14,7 @@ export interface ParsedEvent {
   description?: string;
   startsAt: Date;
   endsAt?: Date;
-  venueText?: string;
+  locationText?: string;
   imageUrl?: string;
 }
 

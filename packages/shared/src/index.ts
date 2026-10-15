@@ -17,7 +17,7 @@ export const EventExtraction = z.object({
   description: z.string().optional(),
   startsAt: z.string().datetime({ offset: true }),
   endsAt: z.string().datetime({ offset: true }).optional(),
-  venueText: z.string().optional(),
+  locationText: z.string().optional(),
   priceFrom: z.number().nonnegative().optional(),
   priceTo: z.number().nonnegative().optional(),
   isFree: z.boolean().optional(),

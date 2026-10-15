@@ -21,19 +21,19 @@ infra/        docker-compose, Caddyfile, скрипты бэкапа
 
 ## Фаза 0 — каркас и инфраструктура (2–3 дня)
 - [ ] Timeweb VPS 2 vCPU / 4 ГБ / 50 ГБ NVMe, Ubuntu 24.04; домен, A-записи `@`, `api.`, `admin.`
-- [ ] Docker Compose: `pgvector/pgvector:pg16`, `api`, `web`, `admin` (статика через Caddy), `caddy` (авто-HTTPS)
-- [ ] CI (GitHub Actions): lint/typecheck/test → build образов в GHCR → SSH → `docker compose pull` → `prisma migrate deploy` → `up -d`
+- [x] Docker Compose: `pgvector/pgvector:pg16`, `api`, `web`, `admin` (статика через Caddy), `caddy` (авто-HTTPS)
+- [x] CI (GitHub Actions): lint/typecheck/test → build образов в GHCR → SSH → `docker compose pull` → `prisma migrate deploy` → `up -d`
 - [ ] Секреты в `.env` на VPS: `DATABASE_URL`, `GIGACHAT_CREDENTIALS`, `VK_SERVICE_TOKEN`, `TG_SESSION`, `ADMIN_*`, `JWT_SECRET`
 - [ ] GigaChat: регистрация, freemium-ключ, scope `GIGACHAT_API_PERS`
 
 **Контрольная точка:** push в `main` → API за HTTPS отвечает `/health`, миграции применены.
 
 ## Фаза 1 — данные и краулеры (1 неделя)
-- [ ] Prisma-схема: `Source`, `CrawlRun`, `RawPost`, `Event`, `EventSource`, `Venue`, `Organizer`, `ModerationItem`, `User`, `Subscription` (`tier`, `expiresAt`), `LlmCache`
-- [ ] `Source`: `type` (HTML/RSS/VK/TELEGRAM/MANUAL), `adapter`, `config` (Json), `enabled`, `priority`, `scheduleCron` (по умолчанию `0 */3 * * *`), `lastRunAt/Status/Error`
-- [ ] Сид `Source` из реестра ниже (включены MVP: №1, 2, 4, 15)
-- [ ] Сид `Venue`: 100–150 точек с гео и алиасами
-- [ ] Интерфейс `CrawlerAdapter { fetch(source): Promise<RawItem[]> }` + реестр по ключу `adapter`
+- [x] Prisma-схема: `Source`, `CrawlRun`, `RawPost`, `Event`, `EventSource`, `Location`, `Organizer`, `ModerationItem`, `User`, `Subscription` (`tier`, `expiresAt`), `LlmCache`
+- [x] `Source`: `type` (HTML/RSS/VK/TELEGRAM/MANUAL), `adapter`, `config` (Json), `enabled`, `priority`, `scheduleCron` (по умолчанию `0 */3 * * *`), `lastRunAt/Status/Error`
+- [x] Сид `Source` из реестра ниже (включены MVP: №1, 2, 4, 15)
+- [ ] Сид `Location`: 100–150 точек с гео и алиасами
+- [x] Интерфейс `CrawlerAdapter { fetch(source): Promise<RawItem[]> }` + реестр по ключу `adapter`
 - [ ] HTML-адаптеры (ofetch + cheerio): tourismpereslavl.ru, museumpereslavl.ru (список + detail), admpereslavl.ru — пишут **сразу в `Event`**
 - [ ] VK-адаптер (`vk-io`, `wall.get`): anons_pz, oskar.amigopz → `RawPost`
 - [ ] Планировщик: `@nestjs/schedule` тикает каждые 5 мин, выбирает источники с наступившим `scheduleCron`; очередь pg-boss (без Redis), concurrency 2–3, ретраи с backoff
@@ -42,11 +42,11 @@ infra/        docker-compose, Caddyfile, скрипты бэкапа
 **Контрольная точка:** события сайтов появляются каждые 3 ч; посты ВК копятся; `CrawlRun` логирует запуски.
 
 ## Фаза 2 — LLM-пайплайн, только GigaChat (1 неделя)
-- [ ] `GigaChatProvider`: OAuth с кэшем токена (refresh за 60 с до истечения), function calling, temperature 0.1, семафор на 1 поток (freemium). Интерфейс `LlmProvider` сохраняем
+- [x] `GigaChatProvider`: OAuth с кэшем токена (refresh за 60 с до истечения), function calling, temperature 0.1, семафор на 1 поток (freemium). Интерфейс `LlmProvider` сохраняем
 - [ ] Классификатор «событие/не событие» (Lite, zod); `confidence < 0.6` → `SKIPPED`
-- [ ] Экстрактор → zod `EventExtraction` (даты относительно `publishedAt`, venue-текст, цена, категория, confidence); 1 ретрай с ошибкой zod → `ModerationItem`; `confidence < 0.8` → модерация
+- [ ] Экстрактор → zod `EventExtraction` (даты относительно `publishedAt`, location-текст, цена, категория, confidence); 1 ретрай с ошибкой zod → `ModerationItem`; `confidence < 0.8` → модерация
 - [ ] Кэш по `sha256(normalizedText)` в `LlmCache`
-- [ ] Матчинг площадки: `pg_trgm` по `Venue.name/aliases`; не найдено → модерация
+- [ ] Матчинг площадки: `pg_trgm` по `Location.name/aliases`; не найдено → модерация
 - [ ] Дедуп: эмбеддинг → `Unsupported("vector(1024)")` → `$queryRaw` по кандидатам ±1 день, `embedding <=> $vec < 0.08` → мердж (добавить `EventSource`, дозаполнить поля). Применяется и к HTML-событиям
 
 **Контрольная точка:** пост ВК → карточка <5 мин после краулинга; автопубликация ≥70%.
@@ -60,7 +60,7 @@ infra/        docker-compose, Caddyfile, скрипты бэкапа
 
 ## Фаза 4 — публичный сайт Next.js (1 неделя)
 - [ ] `/` ближайшие; фильтры по дате (сегодня/выходные/диапазон), категории, площадке
-- [ ] `/events/[slug]`, `/venues/[slug]`; ссылка на первоисточник
+- [ ] `/events/[slug]`, `/locations/[slug]`; ссылка на первоисточник
 - [ ] ISR + `revalidateTag` при публикации; JSON-LD `Event`; sitemap; OG-картинки
 - [ ] Карта площадок (Яндекс.Карты), ICS «добавить в календарь»
 - [ ] Автоархивация прошедших событий
