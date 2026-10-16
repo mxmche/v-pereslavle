@@ -34,7 +34,7 @@ infra/        docker-compose, Caddyfile, скрипты бэкапа
 - [x] Сид `Source` из реестра ниже (включены MVP: №1, 2, 4, 15)
 - [x] Сид `Location`: 100–150 точек с гео и алиасами
 - [x] Интерфейс `CrawlerAdapter { fetch(source): Promise<RawItem[]> }` + реестр по ключу `adapter`
-- [ ] HTML-адаптеры (ofetch + cheerio): ~~tourismpereslavl.ru~~ ✅ (календарь `/kalendar-turisticheskikh-sobytiy/`), ~~museumpereslavl.ru~~ ✅ (временные выставки с главной + detail), ~~admpereslavl.ru~~ ✅ (календарь анонсов, без RSS) — пишут **сразу в `Event`**
+- [ ] HTML-адаптеры (ofetch + cheerio): ~~tourismpereslavl.ru~~ ✅ (календарь `/kalendar-turisticheskikh-sobytiy/`), ~~museumpereslavl.ru~~ ✅ (временные выставки с главной + detail), ~~admpereslavl.ru~~ ✅ (календарь анонсов, без RSS) — пишут **сразу в `Event`** (статус `DRAFT`, публикует модератор в админке)
 - [ ] VK-адаптер (`vk-io`, `wall.get`): anons_pz, oskar.amigopz → `RawPost` — **отложено, сделаем позже**
 - [ ] Планировщик: `@nestjs/schedule` тикает каждые 5 мин, выбирает источники с наступившим `scheduleCron` ✅; очередь pg-boss (без Redis), concurrency 2–3, ретраи с backoff — пока in-process `CrawlQueue` (concurrency 2, дедуп по источнику), без ретраев и pg-boss
 - [x] Идемпотентность: upsert по `(sourceId, externalId)` (`IngestService`); «Запустить сейчас» ставит ту же задачу

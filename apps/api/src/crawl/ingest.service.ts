@@ -86,8 +86,8 @@ export class IngestService {
       data: {
         ...fields,
         slug: `${slugify(item.title)}-${randomBytes(3).toString('hex')}`,
-        // structured site data is trusted → published right away (plan: HTML adapters write straight to Event)
-        status: 'PUBLISHED',
+        // new events wait for a moderator to publish them in the admin
+        status: 'DRAFT',
         sources: { create: { sourceId, externalId: item.externalId, url: item.url } },
       },
     });
