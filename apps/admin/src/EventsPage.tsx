@@ -2,7 +2,19 @@ import { Fragment, useCallback, useEffect, useState } from 'react';
 import { api, fmtDateTime, fromLocalInput, toLocalInput, type AdminEvent, type EventStatus, type Location } from './api';
 
 const STATUS_LABEL: Record<EventStatus, string> = { DRAFT: 'Черновик', PUBLISHED: 'Опубликовано', REJECTED: 'Отклонено', ARCHIVED: 'Архив' };
-const CATEGORIES = ['concert', 'exhibition', 'excursion', 'festival', 'theatre', 'cinema', 'kids', 'lecture', 'sport', 'religious', 'other'];
+const CATEGORIES: Record<string, string> = {
+  concert: 'Концерты',
+  exhibition: 'Выставки',
+  excursion: 'Экскурсии',
+  festival: 'Фестивали',
+  theatre: 'Театр',
+  cinema: 'Кино',
+  kids: 'Детям',
+  lecture: 'Лекции',
+  sport: 'Спорт',
+  religious: 'Религия',
+  other: 'Другое',
+};
 const PAGE_SIZE = 50;
 
 function EventForm({ event, locations, onSaved }: { event: AdminEvent; locations: Location[]; onSaved: () => void }) {
@@ -63,7 +75,7 @@ function EventForm({ event, locations, onSaved }: { event: AdminEvent; locations
       <div className="two">
         <label>Категория
           <select value={form.category} onChange={set('category')}>
-            {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+            {Object.entries(CATEGORIES).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
           </select>
         </label>
         <label>Ссылка на билеты<input value={form.ticketUrl} onChange={set('ticketUrl')} /></label>
@@ -127,6 +139,7 @@ export function EventsPage() {
                 <td className="actions">
                   {e.status !== 'PUBLISHED' && <button className="primary" onClick={() => setEventStatus(e.id, 'PUBLISHED')}>Опубликовать</button>}
                   {e.status !== 'REJECTED' && <button className="danger" onClick={() => setEventStatus(e.id, 'REJECTED')}>Отклонить</button>}
+                  {e.status !== 'DRAFT' && <button onClick={() => setEventStatus(e.id, 'DRAFT')}>В черновик</button>}
                   {e.status === 'PUBLISHED' && <button onClick={() => setEventStatus(e.id, 'ARCHIVED')}>В архив</button>}
                   <button onClick={() => setOpen(open === e.id ? null : e.id)}>{open === e.id ? 'Скрыть' : 'Править'}</button>
                 </td>
