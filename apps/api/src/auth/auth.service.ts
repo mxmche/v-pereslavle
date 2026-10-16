@@ -1,5 +1,5 @@
 import { timingSafeEqual } from 'node:crypto';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { signJwt, verifyJwt, type JwtPayload } from './jwt';
 
 const TOKEN_TTL_SECONDS = 12 * 3600;
@@ -10,7 +10,12 @@ const safeEqual = (a: string, b: string) => {
 };
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
+  /** Fail fast at startup instead of returning 500s on the first login. */
+  onModuleInit() {
+    void this.secret;
+  }
+
   private get secret() {
     const secret = process.env.JWT_SECRET;
     if (!secret || (secret === 'change-me' && process.env.NODE_ENV === 'production')) {

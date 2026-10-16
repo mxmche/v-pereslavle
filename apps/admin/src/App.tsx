@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { UNAUTHORIZED, api, getToken, setToken } from './api';
+import { ApiError, UNAUTHORIZED, api, getToken, setToken } from './api';
 import { EventsPage } from './EventsPage';
 import { LocationsPage } from './LocationsPage';
 import { SourcesPage } from './SourcesPage';
@@ -29,8 +29,8 @@ function Login({ onDone }: { onDone: () => void }) {
       });
       setToken(token);
       onDone();
-    } catch {
-      setError('Неверный email или пароль');
+    } catch (err) {
+      setError(err instanceof ApiError && err.status === 401 ? 'Неверный email или пароль' : 'Ошибка сервера, смотрите логи api');
     }
   }
 
