@@ -2,6 +2,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { Injectable, Logger } from '@nestjs/common';
 import { getAdapter, type ParsedEvent, type ParsedPost } from '@vp/crawlers';
 import { PrismaService } from '../prisma.service';
+import { excerpt } from './excerpt';
 import { slugify } from './slug';
 
 export interface IngestResult {
@@ -64,7 +65,7 @@ export class IngestService {
   private async upsertEvent(sourceId: string, item: ParsedEvent): Promise<boolean> {
     const fields = {
       title: item.title,
-      description: item.description,
+      description: excerpt(item.description),
       startsAt: item.startsAt,
       endsAt: item.endsAt,
       locationText: item.locationText,
