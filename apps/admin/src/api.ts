@@ -43,6 +43,7 @@ export interface Source {
   config: unknown;
   enabled: boolean;
   scheduleCron: string;
+  allowImages: boolean;
   lastRunAt: string | null;
   lastStatus: 'OK' | 'ERROR' | 'RUNNING' | null;
   lastError: string | null;

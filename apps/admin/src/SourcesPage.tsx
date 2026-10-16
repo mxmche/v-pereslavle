@@ -4,6 +4,7 @@ import { api, fmtDateTime, type CrawlRun, type Source } from './api';
 function SourceDetails({ source, onSaved }: { source: Source; onSaved: () => void }) {
   const [runs, setRuns] = useState<CrawlRun[]>([]);
   const [cron, setCron] = useState(source.scheduleCron);
+  const [allowImages, setAllowImages] = useState(source.allowImages);
   const [config, setConfig] = useState(JSON.stringify(source.config ?? {}, null, 2));
   const [error, setError] = useState<string | null>(null);
 
@@ -11,7 +12,7 @@ function SourceDetails({ source, onSaved }: { source: Source; onSaved: () => voi
 
   async function save() {
     try {
-      await api(`/admin/sources/${source.id}`, { method: 'PATCH', body: { scheduleCron: cron, config: JSON.parse(config) } });
+      await api(`/admin/sources/${source.id}`, { method: 'PATCH', body: { scheduleCron: cron, allowImages, config: JSON.parse(config) } });
       setError(null);
       onSaved();
     } catch (e) {
@@ -25,6 +26,10 @@ function SourceDetails({ source, onSaved }: { source: Source; onSaved: () => voi
         <label>Расписание (cron)<input value={cron} onChange={(e) => setCron(e.target.value)} /></label>
         <label>Адаптер<input value={source.adapter} readOnly /></label>
       </div>
+      <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <input type="checkbox" checked={allowImages} onChange={(e) => setAllowImages(e.target.checked)} style={{ width: 'auto' }} />
+        Показывать картинки этого источника на сайте (только если есть разрешение правообладателя)
+      </label>
       <label>Конфиг (JSON)<textarea rows={4} value={config} onChange={(e) => setConfig(e.target.value)} /></label>
       {error && <div className="err">{error}</div>}
       <div><button className="primary" onClick={save}>Сохранить</button></div>

@@ -65,6 +65,8 @@ model Source {
   enabled      Boolean    @default(true)
   priority     Int        @default(0)
   scheduleCron String     @default("0 */3 * * *")
+  /// Показывать картинки событий с этого источника на публичном сайте (нужно разрешение правообладателя)
+  allowImages  Boolean    @default(false)
   lastRunAt    DateTime?
   lastStatus   RunStatus?
   lastError    String?
