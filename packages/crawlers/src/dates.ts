@@ -67,3 +67,17 @@ export function parseRuDateRange(raw: string): { startsAt: Date; endsAt?: Date }
   }
   return null;
 }
+
+/**
+ * Parses "19.06.26 9:00 - 08.11.26 9:00" (or a single "19.06.26 9:00" / "19.06.2026"),
+ * times are Moscow. Returns null when no start date is found.
+ */
+export function parseDottedDateRange(raw: string): { startsAt: Date; endsAt?: Date } | null {
+  const re = /(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2})(?:\s+(\d{1,2}):(\d{2}))?/g;
+  const dates = [...raw.matchAll(re)].map((m) => {
+    const year = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
+    return new Date(Date.UTC(year, Number(m[2]) - 1, Number(m[1]), Number(m[4] ?? 0) - 3, Number(m[5] ?? 0)));
+  });
+  if (dates.length === 0) return null;
+  return dates.length > 1 ? { startsAt: dates[0], endsAt: dates[1] } : { startsAt: dates[0] };
+}
