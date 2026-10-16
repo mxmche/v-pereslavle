@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 const sources: { name: string; url: string; type: SourceType; adapter: string; enabled: boolean }[] = [
   { name: 'Туристический Переславль', url: 'https://tourismpereslavl.ru', type: 'HTML', adapter: 'html-tourismpereslavl', enabled: true },
-  { name: 'Администрация района', url: 'https://admpereslavl.ru', type: 'RSS', adapter: 'rss-admpereslavl', enabled: true },
+  { name: 'Администрация района', url: 'https://admpereslavl.ru', type: 'HTML', adapter: 'html-admpereslavl', enabled: true },
   { name: 'Культура Ярославской области', url: 'https://culture76.ru', type: 'HTML', adapter: 'html-culture76', enabled: false },
   { name: 'Переславский музей-заповедник', url: 'https://museumpereslavl.ru', type: 'HTML', adapter: 'html-museumpereslavl', enabled: true },
   { name: 'Кинотеатр «Оскар»', url: 'https://kino-oskar.ru', type: 'HTML', adapter: 'html-kino-oskar', enabled: false },
