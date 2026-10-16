@@ -30,6 +30,7 @@ services:
     env_file: .env
     environment:
       API_URL: http://api:3001
+      SITE_URL: https://${DOMAIN}
     depends_on: [api]
     profiles: [prod]
 
