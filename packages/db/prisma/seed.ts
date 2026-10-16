@@ -17,7 +17,7 @@ const sources: { name: string; url: string; type: SourceType; adapter: string; e
   { name: 'Яр-ШОУ', url: 'https://yar-show.ru', type: 'HTML', adapter: 'html-yarshow', enabled: false },
   { name: 'Артефакт', url: 'https://ar.culture.ru', type: 'HTML', adapter: 'html-artefact', enabled: false },
   { name: 'RussiaDiscovery', url: 'https://russiadiscovery.ru', type: 'HTML', adapter: 'html-russiadiscovery', enabled: false },
-  { name: 'ВК «Анонсы мероприятий в ПЗ»', url: 'https://vk.ru/anons_pz', type: 'VK', adapter: 'vk-wall', enabled: true },
+  { name: 'ВК «Анонсы мероприятий в ПЗ»', url: 'https://vk.ru/anons_pz', type: 'VK', adapter: 'vk-wall', enabled: false },
   { name: 'ВК кинотеатра «Оскар»', url: 'https://vk.ru/oskar.amigopz', type: 'VK', adapter: 'vk-wall', enabled: false },
   { name: 'TG «Полёты в Переславле»', url: 'https://t.me/fly_pereslavl', type: 'TELEGRAM', adapter: 'tg-channel', enabled: false },
   { name: 'Instagram ТИЦ', url: 'https://www.instagram.com/tourismpereslavl/', type: 'MANUAL', adapter: 'manual', enabled: false },

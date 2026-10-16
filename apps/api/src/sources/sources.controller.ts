@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import type { Prisma } from '@vp/db';
+import { AdminGuard } from '../auth/admin.guard';
 import { CrawlQueue } from '../crawl/crawl-queue.service';
 import { PrismaService } from '../prisma.service';
 
-// TODO: guard with admin JWT auth
 @Controller('admin/sources')
+@UseGuards(AdminGuard)
 export class SourcesController {
   constructor(
     private readonly prisma: PrismaService,
