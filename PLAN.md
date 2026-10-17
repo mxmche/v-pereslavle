@@ -91,8 +91,9 @@ infra/        docker-compose, Caddyfile, скрипты бэкапа
 | 14 | RussiaDiscovery | https://russiadiscovery.ru | HTML | |
 | 15 | ВК «Анонсы мероприятий в ПЗ» | https://vk.ru/anons_pz | VK API | ✅ |
 | 16 | ВК кинотеатра «Оскар» | https://vk.ru/oskar.amigopz | VK API | |
-| 17 | TG «Полёты в Переславле» | https://t.me/fly_pereslavl | GramJS | |
+| 17 | TG «Полёты в Переславле» | https://t.me/fly_pereslavl | Telegram | |
 | 18 | Instagram ТИЦ | https://www.instagram.com/tourismpereslavl/ | вручную | отложен |
+| 19 | | https://t.me/pereslavl_life | Telegram |
 
 ## LLM: бюджет
 ~150 классификаций + ~40 экстракций/день ≈ 106 тыс. токенов/день → GigaChat Lite ≈ 210 ₽/мес (sync), эмбеддинги ≈ 30 ₽/мес. Первый год — freemium (0 ₽). Резервный провайдер YandexGPT Lite — за интерфейсом `LlmProvider`, не реализуем в MVP.
